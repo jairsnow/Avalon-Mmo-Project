@@ -5,74 +5,76 @@ using System;
 using System.Text;
 using System.Security.Cryptography;
 using LitJson;
+using UnityEngine.UI;
 
 public class start : MonoBehaviour {
-    
-	public string serverIpAddress;
+
+    enum tcpConnectionStatus
+    {
+        none,
+        tryConnect,
+        connected,
+        failToConnect,
+        tryLogin,
+        logged,
+        failLogin
+    };
+
+    public string serverIpAddress;
 	private Socket _clientSocket;
-	private string stringToEdit = "";
 	private bool connectToserver = false;
+    tcpConnectionStatus connctionStatus = tcpConnectionStatus.none;
 
-	private class test {
-		public string action;
-		public string data;
-	}
+    private class loginRequest {
+		public string action = "loginRequest";
+        public string username;
+        public string password;
+    }
+    
+    public void loginButtonClick() {
 
-    void OnGUI() {
-        /*
-        if (connectToserver) {
-            
-			if (GUI.Button (new Rect (10, 100, 190, 25), "Disconnect")) {
+        connctionStatus = tcpConnectionStatus.tryConnect;
+        try
+        {
+            _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _clientSocket.BeginConnect(new IPEndPoint(IPAddress.Loopback, 3333), new AsyncCallback(ConnectCallback), null);
+        }
+        catch (Exception ex)
+        {
+            connctionStatus = tcpConnectionStatus.failToConnect;
+            Debug.Log(ex.Message);
+        }
 
-			}
+    }
 
-			stringToEdit = GUI.TextArea(new Rect(10, 10, 300, 80), stringToEdit, 200);
-			
-			if (GUI.Button (new Rect (210, 100, 100, 25), "Send message")) {
-				sendMessage();
-				// Debug.Log (stringToEdit);
-			}
+    void Update()
+    {
 
-		} else {
+        Text connectionInformer = GameObject.Find("connectionInformer").GetComponent<Text>();
 
-			if (GUI.Button (new Rect (10, 100, 190, 25), "Connect to: " + serverIpAddress)) {
-                
-                test test = new test();
+        if (connctionStatus == tcpConnectionStatus.tryConnect) { connectionInformer.text = "Try to connect to the server"; }
+        else if (connctionStatus == tcpConnectionStatus.connected) { connectionInformer.text = "Connected to {IP}"; }
+        else if (connctionStatus == tcpConnectionStatus.failToConnect) { connectionInformer.text = "Fail to connect to the server: {IP}"; }
+        else if (connctionStatus == tcpConnectionStatus.tryLogin) { connectionInformer.text = "Try to log into the server"; }
+        else if (connctionStatus == tcpConnectionStatus.logged) { connectionInformer.text = "Login Succeful"; }
+        else if (connctionStatus == tcpConnectionStatus.failLogin) { connectionInformer.text = "Login fail. Username or Password incorrect"; }
 
-                test.action = "aaa";
-                test.data = "bbb";
-
-                Debug.Log(JsonMapper.ToJson(test));
-                test thomas = JsonMapper.ToObject<test>(JsonMapper.ToJson(test));
-
-                Debug.Log(thomas.data);
+    }
 
 
-                try
-                {
-					_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-					_clientSocket.BeginConnect(new IPEndPoint(IPAddress.Loopback, 3333), new AsyncCallback(ConnectCallback), null);
-				}
-				catch (Exception ex)
-				{
-					Debug.Log(ex.Message);
-				}
-			}
 
-		}
-        */
-
-	}
-
-	private void ConnectCallback(IAsyncResult AR)
-	{
-		try {
-			_clientSocket.EndConnect(AR);
+    private void ConnectCallback(IAsyncResult AR)
+    {
+        try {
+            connctionStatus = tcpConnectionStatus.connected;
+            _clientSocket.EndConnect(AR);
 			connectToserver = true;
-		}
+            sendMessage();
+        }
 		catch (Exception ex)
-		{
-			Debug.Log(ex.Message);
+        {
+            connctionStatus = tcpConnectionStatus.failToConnect;
+            Debug.Log(ex.Message);
 		}
 	}
 
@@ -81,7 +83,15 @@ public class start : MonoBehaviour {
 
 		try
 		{
-			byte[] _buffer = Encoding.ASCII.GetBytes(stringToEdit);
+            loginRequest loginRequest = new loginRequest();
+
+            loginRequest.username = GameObject.Find("usernameValue").GetComponent<InputField>().ToString();
+            loginRequest.password = GetCrypt(GameObject.Find("passwordValue").GetComponent<InputField>().ToString());
+
+            string json = JsonMapper.ToJson(loginRequest);
+            Debug.Log(json);
+
+            byte[] _buffer = Encoding.ASCII.GetBytes(json);
 			_clientSocket.BeginSend(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(SendCallback), null);
 		} 
 		catch (SocketException) { } // Server Close

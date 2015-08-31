@@ -16,8 +16,7 @@ public class useTabInUi : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-
-
+            
             EventSystem myEventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
             bool nextActive = false, focussedSomething = false;
 
