@@ -9,7 +9,7 @@ using System.Drawing;
 using System.Text;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-
+using LitJson;
 
 class Sql
 {
@@ -185,35 +185,14 @@ class Sql
     }
 
 
-    public void query()
+    public MySqlDataReader query(string sql)
     {
-        //Open connection
-        if (this.OpenConnection() == true)
-        {
-            //Create Command
-            MySqlCommand cmd = new MySqlCommand("SELECT * FROM login", connection);
-            //Create a data reader and Execute the command
-            MySqlDataReader dataReader = cmd.ExecuteReader();
 
-            //Read the data and store them in the list
-            while (dataReader.Read())
-            {
-                Debug.Log(dataReader["username"]);
-            }
+        MySqlCommand cmd = new MySqlCommand(sql, connection);
+        MySqlDataReader result = cmd.ExecuteReader();
+        this.CloseConnection();
 
-            //close Data Reader
-            dataReader.Close();
-
-            //close Connection
-            this.CloseConnection();
-
-            //return list to be displayed
-        }
-        else
-        {
-            Debug.Log("You are not connected to te Database;");
-        }
-
+        return result;
     }
 
 }
@@ -233,7 +212,7 @@ public class start : MonoBehaviour {
 		}
 	}
 
-
+    /*
 	void OnGUI() {
 		if (autoStart == false) {
 			if (GUI.Button (new Rect (100, 100, 100, 25), "Start Server")) {
@@ -244,6 +223,7 @@ public class start : MonoBehaviour {
 			GUI.Label (new Rect (200, 100, 100, 20), "Server Started!");
 		}
 	}
+    */
 
 	private void startServer() {
 		try
@@ -299,19 +279,34 @@ public class start : MonoBehaviour {
 		
 		try
 		{
-
-			Sql sql = new Sql();
-			sql.query();
-
-			Socket socket = (Socket)AR.AsyncState;
+            
+            Socket socket = (Socket)AR.AsyncState;
 			int received = socket.EndReceive(AR);
-			
+            Debug.Log("Mmh.. start debug");
+            
 			byte[] copy = _buffer;
-			
-			Array.Resize(ref copy, received);
-			string text = Encoding.ASCII.GetString(copy);
-			AppendTextBox(socket.GetHashCode() + " says: " + text);
-			socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
+            Array.Resize(ref copy, received);
+            revideloginResposne response = JsonMapper.ToObject<revideloginResposne>(Encoding.ASCII.GetString(copy));
+
+            Debug.Log(response.username +" "+ response.password);
+            /*
+            Sql sql = new Sql();
+            MySqlDataReader result = sql.query("SELECT id FROM login WHERE username='"+ response.username + "' AND password='" + response.password + "'");
+            
+            //Read the data and store them in the list
+            while (result.Read())
+            {
+                Debug.Log(result["id"]);
+            }
+
+            Debug.Log("Dopo query");
+            
+            //close Data Reader
+            // result.Close();
+
+            // AppendTextBox(socket.GetHashCode() + " says: " + text);
+            */
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
 			
 		}
 		catch (Exception ex)
@@ -319,6 +314,13 @@ public class start : MonoBehaviour {
 			Debug.Log(ex.Message);
 		}
 	}
+
+    public class revideloginResposne
+    {
+        public string action;
+        public string username;
+        public string password;
+    }
 
 	private void AppendTextBox(string text)
 	{

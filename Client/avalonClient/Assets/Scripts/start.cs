@@ -3,9 +3,9 @@ using System.Net.Sockets;
 using System.Net;
 using System;
 using System.Text;
-using System.Security.Cryptography;
 using LitJson;
 using UnityEngine.UI;
+using utility;
 
 public class start : MonoBehaviour {
 
@@ -24,6 +24,7 @@ public class start : MonoBehaviour {
 	private Socket _clientSocket;
 	private bool connectToserver = false;
     tcpConnectionStatus connctionStatus = tcpConnectionStatus.none;
+    queque queque = new queque();
 
     private class loginRequest {
 		public string action = "loginRequest";
@@ -33,6 +34,20 @@ public class start : MonoBehaviour {
     
     public void loginButtonClick() {
 
+        /*
+        {Try to connect to the server}
+
+        if(net.connect()) {
+            
+            {Connect succeful}
+            
+
+
+        } else {
+            {Fail to connect to the server}
+        }
+        */
+        
         connctionStatus = tcpConnectionStatus.tryConnect;
         try
         {
@@ -49,7 +64,8 @@ public class start : MonoBehaviour {
 
     void Update()
     {
-
+        queque.resolve();
+        /*
         Text connectionInformer = GameObject.Find("connectionInformer").GetComponent<Text>();
 
         if (connctionStatus == tcpConnectionStatus.tryConnect) { connectionInformer.text = "Try to connect to the server"; }
@@ -58,10 +74,8 @@ public class start : MonoBehaviour {
         else if (connctionStatus == tcpConnectionStatus.tryLogin) { connectionInformer.text = "Try to log into the server"; }
         else if (connctionStatus == tcpConnectionStatus.logged) { connectionInformer.text = "Login Succeful"; }
         else if (connctionStatus == tcpConnectionStatus.failLogin) { connectionInformer.text = "Login fail. Username or Password incorrect"; }
-
+        */
     }
-
-
 
     private void ConnectCallback(IAsyncResult AR)
     {
@@ -86,7 +100,7 @@ public class start : MonoBehaviour {
             loginRequest loginRequest = new loginRequest();
 
             loginRequest.username = GameObject.Find("usernameValue").GetComponent<InputField>().ToString();
-            loginRequest.password = GetCrypt(GameObject.Find("passwordValue").GetComponent<InputField>().ToString());
+            loginRequest.password = crypt.sha512(GameObject.Find("passwordValue").GetComponent<InputField>().ToString());
 
             string json = JsonMapper.ToJson(loginRequest);
             Debug.Log(json);
@@ -112,18 +126,43 @@ public class start : MonoBehaviour {
 		}
 	}
 
-	public static string GetCrypt(string text)
-	{
-
-		SHA512 shaM = new SHA512Managed();
-		byte[] hash = shaM.ComputeHash(Encoding.ASCII.GetBytes(text));
-		
-		StringBuilder stringBuilder = new StringBuilder();
-		foreach (byte b in hash)
-		{
-			stringBuilder.AppendFormat("{0:x2}", b);
-		}
-		return stringBuilder.ToString();
 	
-	}
+}
+
+
+
+public class queque {
+
+    public singleQueque[] globalqueque;
+
+    public void resolve() {
+
+        foreach (singleQueque queque in globalqueque) {
+
+            if (queque.status == true)
+            {
+                /*
+                Func<string> convertMethod = () =>
+                {
+                    return "test";
+                };
+                convertMethod();
+                */
+
+                queque.feedback();
+            }
+
+        }
+
+    }
+
+}
+
+public class singleQueque {
+
+    public int startMessageTimestamp;
+    public string action;
+    public bool status;
+    public Func<string> feedback;
+    
 }
