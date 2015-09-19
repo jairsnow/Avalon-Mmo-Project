@@ -46,7 +46,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\lib\networking.cs" />
      <Compile Include="Assets\Scripts\lib\utility.cs" />
+     <Compile Include="Assets\Scripts\networking.cs" />
      <Compile Include="Assets\Scripts\start.cs" />
      <Compile Include="Assets\Scripts\useTabInUi.cs" />
      <None Include="Assets\Materials\NewShader.shader" />
