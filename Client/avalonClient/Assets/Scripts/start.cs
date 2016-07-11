@@ -35,7 +35,7 @@ public class start : MonoBehaviour {
         
         loginRequest loginRequest = new loginRequest();
 
-        loginRequest.username = GameObject.Find("usernameValue").GetComponent<InputField>().ToString();
+        loginRequest.username = GameObject.Find("usernameValue").GetComponent<InputField>().text;
         loginRequest.password = crypt.sha512(GameObject.Find("passwordValue").GetComponent<InputField>().ToString());
         loginRequest.action = "login";
 

@@ -43,3 +43,4 @@ Temporary Items
 .apdisk
 /Client/avalonClient/Temp
 /Server/avalonServer/Temp
+/Server/avalonServer/Assets/scripts/lib/mysql/mysqlPswTrue.*

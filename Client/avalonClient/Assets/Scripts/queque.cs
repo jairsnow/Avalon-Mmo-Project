@@ -13,15 +13,23 @@ static class globalqueque {
 
     public static void resolve()
     {
+        List<singleQueque> toRemove = new List<singleQueque>();
+
         foreach (singleQueque workingQueque in queque)
         {
             if (workingQueque.status == true)
             {
-                workingQueque.feedback();
+               workingQueque.feedback();
+               toRemove.Add(workingQueque);
             }
         }
+        
+        foreach (singleQueque removeQueque in toRemove)
+        {
+            queque.Remove(removeQueque);
+        }
+
     }
-    
 }
 
 public class singleQueque
