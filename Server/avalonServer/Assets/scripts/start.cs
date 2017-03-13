@@ -5,6 +5,7 @@ using System.Net;
 using System;
 using System.Text;
 using LitJson;
+using client;
 
 public class start : MonoBehaviour {
 	
@@ -73,7 +74,7 @@ public class start : MonoBehaviour {
 
         try
 		{
-            
+
             Socket socket = (Socket)AR.AsyncState;
 			int received = socket.EndReceive(AR);
             
@@ -81,26 +82,27 @@ public class start : MonoBehaviour {
             Array.Resize(ref copy, received);
 
             baseRequest response = JsonMapper.ToObject<baseRequest>(Encoding.ASCII.GetString(copy));
-            System.Object initializedClass = initializeCass(response.action, Encoding.ASCII.GetString(copy));
+            Debug.Log(response.className);
+            
+            System.Object initializedClass = initializeClass(response.className, Encoding.ASCII.GetString(copy));
             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
-			
-		}
-		catch (Exception ex)
-        {
+            
+
+        } catch (Exception ex) {
             Debug.Log("User disconnected accidentally. ");
             Debug.Log(ex.Message);
         }
-
+        
     }
 
-    public System.Object initializeCass(string className, string revicedObj) {
+    public System.Object initializeClass(string className, string revicedObj) {
 
         // System.Object retunedClass = new System.Object();
         baseClass retunedClass = new baseClass();
 
         try {
-            Type elementType = Type.GetType(className, true);
 
+            Type elementType = Type.GetType(className, true);
             if (elementType != null)
             {
                 retunedClass = (baseClass) (Activator.CreateInstance(elementType));
@@ -128,5 +130,5 @@ public class start : MonoBehaviour {
 
 public class baseRequest
 {
-    public string action;
+    public string className;
 }

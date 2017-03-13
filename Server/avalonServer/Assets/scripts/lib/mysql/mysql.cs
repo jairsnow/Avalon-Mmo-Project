@@ -3,7 +3,7 @@ using MySql.Data.MySqlClient;
 
 public class mysql
 {
-
+    /*
     private MySqlConnection connection;
     private string server;
     private string database;
@@ -177,11 +177,9 @@ public class mysql
 
     public MySqlDataReader query(string sql)
     {
-
         MySqlCommand cmd = new MySqlCommand(sql, connection);
         MySqlDataReader result = cmd.ExecuteReader();
         return result;
-
     }
-
+    */
 }

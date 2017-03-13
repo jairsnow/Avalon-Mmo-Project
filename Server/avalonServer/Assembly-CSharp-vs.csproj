@@ -36,7 +36,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -61,6 +60,9 @@
     <Reference Include="MySql.Data">
       <HintPath>C:/Users/JairSnow/unity/Avalon-Mmo-Project/Server/avalonServer/Assets/lib/MySql.Data.dll</HintPath>
     </Reference>
+	 <Reference Include="System.Data">
+	 <HintPath>C:/Users/JairSnow/unity/Avalon-Mmo-Project/Server/avalonServer/Assets/lib/System.Data.dll</HintPath>
+	 </Reference>
     <Reference Include="System.Drawing">
       <HintPath>C:/Users/JairSnow/unity/Avalon-Mmo-Project/Server/avalonServer/Assets/lib/System.Drawing.dll</HintPath>
     </Reference>

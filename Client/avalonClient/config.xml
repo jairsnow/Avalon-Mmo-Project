@@ -1,0 +1,11 @@
+<config>
+	
+	<client>
+		<autostart>true</autostart>
+	</client>
+	
+	<server>
+		<autostart>true</autostart>
+	</server>
+	
+</config>
